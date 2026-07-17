@@ -38,6 +38,7 @@
     background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--chalk);
     padding:9px 14px;border-radius:7px;font-family:'Poppins';font-size:13px;font-weight:600;
     cursor:pointer;display:flex;align-items:center;gap:6px;transition:.15s;
+    text-decoration:none;white-space:nowrap;flex-shrink:0;
   }
   .btn:hover{background:rgba(255,255,255,.1);}
   .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--panel);}
@@ -115,6 +116,7 @@
 
 <header>
   <div class="brand"><img src="" id="logoImg" alt="Logo"><span>Pizarra táctica - Mister Mind</span></div>
+  <a class="btn" id="btnTutorial" href="https://www.youtube.com/@mistermind" target="_blank" rel="noopener">▶ Tutorial</a>
   <input id="exerciseTitle" placeholder="Título del ejercicio (solo para el nombre del archivo)">
   <div class="header-actions">
     <button class="btn" id="btnUndo">↺ Deshacer</button>
@@ -325,15 +327,15 @@ function createObjectAt(tool, x, y){
   else if(tool==='keeper'){ o.type='player'; o.team='K'; o.color=lastProp(tool,'color',DEFAULT_COLORS.K); o.number=''; o.isKeeper=true; }
   else if(tool==='coach'){ o.type='coach'; o.color='#161616'; o.letter=''; }
   else if(tool==='alevin'){ o.type='alevin'; o.color=state.alevinColor; o.name=''; }
-  else if(tool==='cone'){ o.type='cone'; o.color=lastProp(tool,'color','#f4a261'); }
+  else if(tool==='cone'){ o.type='cone'; o.color=lastProp(tool,'color','#f4a261'); o.rotation=lastProp(tool,'rotation',0); }
   else if(tool==='flat'){ o.type='flat'; o.color=lastProp(tool,'color','#f4a261'); }
   else if(tool==='cone-pole'){ o.type='cone-pole'; o.color=lastProp(tool,'color','#f4a261'); }
   else if(tool==='hurdle'){ o.type='hurdle'; o.rotation=lastProp(tool,'rotation',0); }
   else if(tool==='hoop'){ o.type='hoop'; o.color=lastProp(tool,'color','#f2c14e'); }
-  else if(tool==='goal-mini'){ o.type='goal'; o.size='mini'; o.orientation=lastProp(tool,'orientation','horizontal'); }
-  else if(tool==='goal-big'){ o.type='goal'; o.size='grande'; o.orientation=lastProp(tool,'orientation','horizontal'); }
+  else if(tool==='goal-mini'){ o.type='goal'; o.size='mini'; o.rotation=lastProp(tool,'rotation',0); }
+  else if(tool==='goal-big'){ o.type='goal'; o.size='grande'; o.rotation=lastProp(tool,'rotation',0); }
   else if(tool==='ball'){ o.type='ball'; o.variant=lastProp(tool,'variant','g1'); }
-  else if(tool==='pica'){ o.type='pica'; o.orientation=lastProp(tool,'orientation','vertical'); o.length=lastProp(tool,'length',44); o.color=lastProp(tool,'color','#f4a261'); }
+  else if(tool==='pica'){ o.type='pica'; o.rotation=lastProp(tool,'rotation',0); o.length=lastProp(tool,'length',44); o.color=lastProp(tool,'color','#f4a261'); }
   else if(tool==='text'){ o.type='text'; o.content='Texto'; o.color=lastProp(tool,'color','#f4f1e8'); o.size=lastProp(tool,'size',22); }
   return o;
 }
@@ -355,21 +357,28 @@ function pointInObject(o,x,y){
     case 'cone-pole': return Math.hypot(x-o.x,y-o.y) <= CONE_R+16;
     case 'hoop': return Math.hypot(x-o.x,y-o.y) <= 17;
     case 'hurdle': {
-      let w=HURDLE_SIZE.w, h=HURDLE_SIZE.h;
-      if(o.rotation===90 || o.rotation===270){ const t=w; w=h; h=t; }
-      return x>=o.x-w/2-4 && x<=o.x+w/2+4 && y>=o.y-h/2-4 && y<=o.y+h/2+4;
+      const rad = -((o.rotation||0) * Math.PI/180);
+      const dx = x-o.x, dy = y-o.y;
+      const lx = dx*Math.cos(rad) - dy*Math.sin(rad);
+      const ly = dx*Math.sin(rad) + dy*Math.cos(rad);
+      return lx>=-HURDLE_SIZE.w/2-4 && lx<=HURDLE_SIZE.w/2+4 && ly>=-HURDLE_SIZE.h/2-4 && ly<=HURDLE_SIZE.h/2+4;
     }
     case 'ball': return Math.hypot(x-o.x,y-o.y) <= 17;
     case 'goal': {
       const gs = GOAL_SIZES[o.size] || GOAL_SIZES.mini;
-      let w=gs.w, h=gs.h;
-      if(o.orientation==='vertical'){ const t=w; w=h; h=t; }
-      return x>=o.x-w/2-4 && x<=o.x+w/2+4 && y>=o.y-h/2-4 && y<=o.y+h/2+4;
+      const rad = -((o.rotation||0) * Math.PI/180);
+      const dx = x-o.x, dy = y-o.y;
+      const lx = dx*Math.cos(rad) - dy*Math.sin(rad);
+      const ly = dx*Math.sin(rad) + dy*Math.cos(rad);
+      return lx>=-gs.w/2-4 && lx<=gs.w/2+4 && ly>=-gs.h/2-4 && ly<=gs.h/2+4;
     }
     case 'pica': {
-      const len = o.length||44;
-      if(o.orientation==='vertical') return distToSegment(x,y,o.x,o.y-len/2,o.x,o.y+len/2) <= 8;
-      return distToSegment(x,y,o.x-len/2,o.y,o.x+len/2,o.y) <= 8;
+      const len = o.length||44, half=len/2;
+      const rad = -((o.rotation||0) * Math.PI/180);
+      const dx = x-o.x, dy = y-o.y;
+      const lx = dx*Math.cos(rad) - dy*Math.sin(rad);
+      const ly = dx*Math.sin(rad) + dy*Math.cos(rad);
+      return distToSegment(lx,ly,-half,0,half,0) <= 8;
     }
     case 'text': { const w=measureTextWidth(o); return x>=o.x-4 && x<=o.x+w+4 && y>=o.y-4 && y<=o.y+o.size+8; }
     case 'zone-rect': { const rx=o.w<0?o.x+o.w:o.x, ry=o.h<0?o.y+o.h:o.y, rw=Math.abs(o.w), rh=Math.abs(o.h);
@@ -527,10 +536,12 @@ function drawObject(o){
       break;
     }
     case 'cone': {
+      ctx.translate(o.x,o.y);
+      ctx.rotate((o.rotation||0) * Math.PI/180);
       ctx.beginPath();
-      ctx.moveTo(o.x, o.y-CONE_R); ctx.lineTo(o.x+CONE_R*0.9,o.y+CONE_R*0.8); ctx.lineTo(o.x-CONE_R*0.9,o.y+CONE_R*0.8);
+      ctx.moveTo(0,-CONE_R); ctx.lineTo(CONE_R*0.9,CONE_R*0.8); ctx.lineTo(-CONE_R*0.9,CONE_R*0.8);
       ctx.closePath(); ctx.fillStyle=o.color; ctx.fill(); ctx.strokeStyle='rgba(0,0,0,0.4)'; ctx.lineWidth=1.5; ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(o.x-CONE_R*0.5,o.y+CONE_R*0.15); ctx.lineTo(o.x+CONE_R*0.5,o.y+CONE_R*0.15);
+      ctx.beginPath(); ctx.moveTo(-CONE_R*0.5,CONE_R*0.15); ctx.lineTo(CONE_R*0.5,CONE_R*0.15);
       ctx.strokeStyle='rgba(255,255,255,0.55)'; ctx.lineWidth=1.5; ctx.stroke();
       break;
     }
@@ -572,7 +583,7 @@ function drawObject(o){
     case 'goal': {
       const gs = GOAL_SIZES[o.size] || GOAL_SIZES.mini;
       ctx.translate(o.x,o.y);
-      if(o.orientation==='vertical') ctx.rotate(Math.PI/2);
+      ctx.rotate((o.rotation||0) * Math.PI/180);
       const gw=gs.w, gh=gs.h;
       ctx.strokeStyle='#ffffff'; ctx.lineWidth = o.size==='grande' ? 2.8 : 2.2;
       ctx.strokeRect(-gw/2,-gh/2,gw,gh);
@@ -597,14 +608,13 @@ function drawObject(o){
     case 'pica': {
       const len = o.length||44;
       ctx.translate(o.x,o.y);
+      ctx.rotate((o.rotation||0) * Math.PI/180);
       const half = len/2;
-      const p1 = o.orientation==='vertical' ? {x:0,y:-half} : {x:-half,y:0};
-      const p2 = o.orientation==='vertical' ? {x:0,y:half} : {x:half,y:0};
       ctx.strokeStyle=o.color; ctx.lineWidth=4; ctx.lineCap='round';
-      ctx.beginPath(); ctx.moveTo(p1.x,p1.y); ctx.lineTo(p2.x,p2.y); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(-half,0); ctx.lineTo(half,0); ctx.stroke();
       ctx.fillStyle=o.color;
-      ctx.beginPath(); ctx.arc(p1.x,p1.y,3,0,Math.PI*2); ctx.fill();
-      ctx.beginPath(); ctx.arc(p2.x,p2.y,3,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(-half,0,3,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(half,0,3,0,Math.PI*2); ctx.fill();
       break;
     }
     case 'text': {
@@ -666,7 +676,7 @@ function drawSelection(o){
     case 'ball': ctx.beginPath(); ctx.arc(o.x,o.y,20,0,Math.PI*2); ctx.stroke(); break;
     case 'goal': {
       const gs = GOAL_SIZES[o.size] || GOAL_SIZES.mini;
-      ctx.translate(o.x,o.y); if(o.orientation==='vertical') ctx.rotate(Math.PI/2);
+      ctx.translate(o.x,o.y); ctx.rotate((o.rotation||0) * Math.PI/180);
       ctx.strokeRect(-gs.w/2-6,-gs.h/2-6,gs.w+12,gs.h+12);
       break;
     }
@@ -771,6 +781,7 @@ function renderProps(){
       <input type="color" id="pColor" value="${obj.color}" class="color-input">`;
   } else if(obj.type==='cone'){
     html += `<label class="field-label">Cono</label>
+      <button class="chip-btn" id="pRotate" style="width:100%;margin-top:2px;">⟳ Girar (${obj.rotation||0}°)</button>
       <label class="field-label">Color</label>
       <input type="color" id="pColor" value="${obj.color}" class="color-input">`;
   } else if(obj.type==='flat'){
@@ -790,7 +801,7 @@ function renderProps(){
       <button class="chip-btn" id="pRotate" style="width:100%;margin-top:2px;">⟳ Girar (${obj.rotation||0}°)</button>`;
   } else if(obj.type==='goal'){
     html += `<label class="field-label">${obj.size==='grande' ? 'Portería grande' : 'Portería mini'}</label>
-      <button class="chip-btn" id="pRotate" style="width:100%;margin-top:6px;">⟳ Girar (${obj.orientation==='vertical'?'vertical':'horizontal'})</button>`;
+      <button class="chip-btn" id="pRotate" style="width:100%;margin-top:6px;">⟳ Girar (${obj.rotation||0}°)</button>`;
   } else if(obj.type==='ball'){
     html += `<label class="field-label">Balón</label>
       <div class="props-row">
@@ -799,7 +810,7 @@ function renderProps(){
       </div>`;
   } else if(obj.type==='pica'){
     html += `<label class="field-label">Pica</label>
-      <button class="chip-btn" id="pRotate" style="width:100%;margin-top:2px;">⟳ Girar (${obj.orientation==='vertical'?'vertical':'horizontal'})</button>
+      <button class="chip-btn" id="pRotate" style="width:100%;margin-top:2px;">⟳ Girar (${obj.rotation||0}°)</button>
       <label class="field-label">Longitud</label>
       <input type="range" min="20" max="90" id="pLength" value="${obj.length||44}" class="range-input">
       <label class="field-label">Color</label>
@@ -895,8 +906,13 @@ function renderProps(){
   if(flip) flip.addEventListener('click', ()=>{ pushHistory(); [obj.x1,obj.x2]=[obj.x2,obj.x1]; [obj.y1,obj.y2]=[obj.y2,obj.y1]; render(); });
   if(rotate) rotate.addEventListener('click', ()=>{
     pushHistory();
-    if(obj.type==='hurdle'){ obj.rotation = ((obj.rotation||0) + 90) % 360; rememberProp(tk,{rotation:obj.rotation}); }
-    else { obj.orientation = obj.orientation==='vertical' ? 'horizontal' : 'vertical'; rememberProp(tk,{orientation:obj.orientation}); }
+    if(['goal','hurdle','pica','cone'].includes(obj.type)){
+      obj.rotation = ((obj.rotation||0) + 45) % 360;
+      rememberProp(tk,{rotation:obj.rotation});
+    } else {
+      obj.orientation = obj.orientation==='vertical' ? 'horizontal' : 'vertical';
+      rememberProp(tk,{orientation:obj.orientation});
+    }
     render(); renderProps();
   });
   if(double) double.addEventListener('click', ()=>{ pushHistory(); obj.doubleArrow = !obj.doubleArrow; rememberProp(tk,{doubleArrow:obj.doubleArrow}); render(); renderProps(); });

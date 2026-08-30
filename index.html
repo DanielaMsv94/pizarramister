@@ -19,8 +19,21 @@
   }
   *{box-sizing:border-box;}
   html,body{margin:0;height:100%;background:var(--pitch-dark);font-family:'Poppins',sans-serif;color:var(--chalk);overflow:hidden;}
+  .top-nav{
+    height:42px;flex:0 0 42px;background:#022720;border-bottom:2px solid var(--line);
+    display:flex;align-items:center;gap:6px;padding:0 14px;
+  }
+  .nav-tab{
+    background:transparent;border:none;color:rgba(244,241,232,.55);font-family:'Poppins';font-weight:600;
+    font-size:13px;padding:8px 14px;border-radius:7px 7px 0 0;cursor:pointer;transition:.15s;
+  }
+  .nav-tab:hover{background:rgba(255,255,255,.06);color:var(--chalk);}
+  .nav-tab.active{background:var(--panel);color:var(--accent);}
+  .app-view{height:calc(100vh - 42px);display:flex;flex-direction:column;}
+  #viewPizarra{overflow:hidden;}
+  #viewSesion{overflow-y:auto;}
   header{
-    height:60px;background:linear-gradient(180deg,#055240,var(--pitch-dark));
+    height:60px;flex:0 0 60px;background:linear-gradient(180deg,#055240,var(--pitch-dark));
     border-bottom:2px solid var(--line);display:flex;align-items:center;
     padding:0 18px;gap:14px;
   }
@@ -43,7 +56,7 @@
   .btn:hover{background:rgba(255,255,255,.1);}
   .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--panel);}
   .btn.primary:hover{background:var(--accent-deep);}
-  main{display:flex;height:calc(100vh - 60px - 34px);}
+  main{display:flex;flex:1;min-height:0;}
   .app-footer{
     height:34px;flex:0 0 34px;background:var(--pitch-dark);border-top:1px solid var(--line);
     display:flex;align-items:center;justify-content:center;gap:10px;padding:0 14px;
@@ -109,11 +122,75 @@
   .range-input{width:100%;}
   ::-webkit-scrollbar{width:10px;}
   ::-webkit-scrollbar-thumb{background:var(--line);border-radius:6px;}
+
+  /* ===== Vista: Armar sesión ===== */
+  .session-toolbar{
+    flex:0 0 52px;display:flex;align-items:center;gap:14px;padding:0 20px;
+    background:var(--panel);border-bottom:2px solid var(--line);
+  }
+  .session-toolbar-hint{flex:1;font-size:12px;color:rgba(244,241,232,.5);}
+  .session-page-wrap{flex:1;overflow-y:auto;padding:28px 16px 60px;background:var(--pitch-dark);}
+  .session-sheet{
+    width:850px;max-width:100%;margin:0 auto;background:#ffffff;color:#1a1a1a;
+    border-radius:6px;box-shadow:0 20px 50px rgba(0,0,0,.5);padding:34px 40px;font-family:'Poppins',sans-serif;
+  }
+  .sheet-header{display:flex;gap:18px;align-items:flex-start;border-bottom:2px solid #045941;padding-bottom:16px;margin-bottom:20px;}
+  .sheet-logo{height:34px;width:auto;flex:0 0 auto;margin-top:4px;}
+  .sheet-header-fields{flex:1;min-width:0;}
+  .sheet-input{
+    border:1px dashed transparent;background:transparent;font-family:'Poppins',sans-serif;color:#1a1a1a;
+    padding:3px 4px;border-radius:4px;width:100%;
+  }
+  .sheet-input:hover, .sheet-input:focus{border-color:#bbb;outline:none;background:#fafafa;}
+  .sheet-title-input{font-size:24px;font-weight:700;margin-bottom:6px;}
+  .sheet-meta-row{display:flex;flex-wrap:wrap;gap:14px;font-size:11px;color:#555;margin-bottom:8px;}
+  .sheet-meta-row label{display:flex;flex-direction:column;gap:2px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;}
+  .sheet-meta-input{font-size:13px;font-weight:500;text-transform:none;letter-spacing:0;min-width:110px;color:#1a1a1a;}
+  .sheet-objective-input{font-size:13px;color:#333;resize:vertical;font-style:italic;}
+  .sheet-blocks{display:flex;flex-direction:column;gap:18px;}
+  .sheet-block{border:1px solid #ddd;border-radius:8px;padding:14px 16px;page-break-inside:avoid;}
+  .sheet-block-top{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+  .sheet-block-num{
+    background:#045941;color:#BCF285;font-weight:700;font-size:12px;border-radius:50%;
+    width:24px;height:24px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;
+  }
+  .sheet-block-title{flex:1;font-size:16px;font-weight:700;}
+  .sheet-block-duration{width:80px;font-size:12px;text-align:right;color:#555;}
+  .sheet-block-del{
+    background:none;border:none;color:#c0503f;cursor:pointer;font-size:16px;padding:2px 6px;flex:0 0 auto;
+  }
+  .sheet-block-body{display:flex;gap:14px;}
+  .sheet-block-desc{flex:1;font-size:13px;color:#333;resize:vertical;min-height:70px;line-height:1.5;}
+  .sheet-block-imgwrap{flex:0 0 260px;}
+  .sheet-block-img{width:100%;border-radius:6px;border:1px solid #ddd;display:block;}
+  .sheet-block-dropzone{
+    width:100%;height:150px;border:2px dashed #bbb;border-radius:6px;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:6px;color:#888;font-size:12px;text-align:center;cursor:pointer;
+  }
+  .sheet-block-imgactions{display:flex;gap:6px;margin-top:6px;}
+  .sheet-block-imgactions button{
+    flex:1;font-size:11px;padding:4px 6px;border:1px solid #ccc;background:#fff;border-radius:5px;cursor:pointer;color:#333;
+  }
+  @media print{
+    body *{visibility:hidden;}
+    .session-sheet, .session-sheet *{visibility:visible;}
+    .session-sheet{position:absolute;top:0;left:0;width:100%;box-shadow:none;margin:0;padding:14mm;}
+    .sheet-input{border-color:transparent!important;background:transparent!important;}
+    .sheet-block{border-color:#999;}
+    .sheet-block-del, .sheet-block-imgactions, .sheet-block-dropzone{display:none!important;}
+    @page{margin:10mm;}
+  }
 </style>
 </head>
 
 <body>
 
+<nav class="top-nav">
+  <button class="nav-tab active" id="navBtnPizarra" data-view="pizarra">🎯 Pizarra Táctica</button>
+  <button class="nav-tab" id="navBtnSesion" data-view="sesion">📋 Armar sesión</button>
+</nav>
+
+<div id="viewPizarra" class="app-view">
 <header>
   <div class="brand"><img src="" id="logoImg" alt="Logo"><span>Pizarra táctica - Mister Mind</span></div>
   <a class="btn" id="btnTutorial" href="https://youtu.be/4dxHXGehjQI" target="_blank" rel="noopener">▶ Tutorial</a>
@@ -121,6 +198,7 @@
   <div class="header-actions">
     <button class="btn" id="btnUndo">↺ Deshacer</button>
     <button class="btn" id="btnClear">🗑 Borrar todo</button>
+    <button class="btn" id="btnAddToSession">➕ Añadir a sesión</button>
     <button class="btn primary" id="btnExport">⬇ Descargar PNG</button>
   </div>
 </header>
@@ -166,7 +244,7 @@
       <button class="tool-btn" data-tool="line-free"><span class="tool-icon">∿</span>Línea libre</button>
       <button class="tool-btn wide" data-tool="text"><span class="tool-icon" style="font-family:'Poppins';font-weight:700;">T</span>Texto</button>
     </div>
-    <p class="hint">Clic para colocar jugadores, conos, porterías, balón, picas o texto. Arrastra para dibujar zonas y flechas. Con «Línea libre» ve haciendo clic para añadir puntos y pulsa Enter o doble clic para terminar — luego arrastra cada punto para curvarla. Tecla V = Mover/Seleccionar. Mantén clic derecho y arrastra para seleccionar varios elementos a la vez. Supr para borrar el seleccionado.</p>
+    <p class="hint">Clic para colocar jugadores, conos, porterías, balón, picas o texto. Arrastra para dibujar zonas y flechas. Con «Línea libre» ve haciendo clic para añadir puntos y pulsa Enter o doble clic para terminar — luego arrastra cada punto para curvarla. Tecla V = Mover/Seleccionar. Mantén clic derecho y arrastra (o clic en vacío) para seleccionar varios elementos a la vez. Supr para borrar el seleccionado.</p>
   </aside>
 
   <div class="canvas-wrap" id="canvasWrap">
@@ -185,6 +263,35 @@
   <img src="" id="footerLogo" alt="Mister Mind">
   <span>© 2026 Mister Mind. Todos los derechos reservados.</span>
 </footer>
+</div>
+
+<div id="viewSesion" class="app-view" style="display:none;">
+  <div class="session-toolbar">
+    <button class="btn" id="btnAddBlock">+ Añadir ejercicio</button>
+    <span class="session-toolbar-hint">Sube una imagen o ve a la Pizarra y usa «➕ Añadir a sesión» para traer tu gráfico directamente.</span>
+    <button class="btn primary" id="btnPrintSession">🖨 Imprimir / Guardar PDF</button>
+  </div>
+
+  <div class="session-page-wrap">
+    <div class="session-sheet" id="sessionSheet">
+      <div class="sheet-header">
+        <img id="sheetLogoImg" src="" alt="" class="sheet-logo">
+        <div class="sheet-header-fields">
+          <input id="sessTitle" class="sheet-input sheet-title-input" placeholder="Título de la sesión">
+          <div class="sheet-meta-row">
+            <label>Fecha <input id="sessDate" type="date" class="sheet-input sheet-meta-input"></label>
+            <label>Categoría <input id="sessCategory" class="sheet-input sheet-meta-input" placeholder="Alevín D"></label>
+            <label>Entrenador <input id="sessCoach" class="sheet-input sheet-meta-input" placeholder="Nombre"></label>
+            <label>Duración total <input id="sessDuration" class="sheet-input sheet-meta-input" placeholder="60 min"></label>
+          </div>
+          <textarea id="sessObjective" class="sheet-input sheet-objective-input" rows="2" placeholder="Objetivo de la sesión..."></textarea>
+        </div>
+      </div>
+
+      <div class="sheet-blocks" id="sheetBlocks"></div>
+    </div>
+  </div>
+</div>
 
 <script>
 /* ===== IMÁGENES INCRUSTADAS (campo, balones, logo) ===== */
@@ -241,7 +348,58 @@ let dragging = null;       // {obj, orig, startX, startY}
 let groupDragging = null;  // {ids, origs, startX, startY} para mover selección múltiple
 let pointDragging = null;  // {obj, index} para editar puntos de línea libre
 let draft = null;          // objeto en construcción (zona/flecha/línea libre)
-let marquee = null;        // {x1,y1,x2,y2} selección rectangular con clic derecho
+let marquee = null;        // {x1,y1,x2,y2} selección rectangular con clic derecho o clic en vacío
+let activeGuides = [];     // guías de alineación visibles durante el arrastre
+
+/* ---------- Guías inteligentes de alineación (tipo PowerPoint) ---------- */
+const SNAP_THRESHOLD = 6;
+function getSnapCandidates(excludeId){
+  const xs = [], ys = [];
+  const { w:pw, h:ph } = computePitchRect();
+  const pcx = CANVAS_W/2, pcy = CANVAS_H/2;
+  xs.push(pcx, pcx-pw/2, pcx+pw/2);
+  ys.push(pcy, pcy-ph/2, pcy+ph/2);
+  state.objects.forEach(o=>{
+    if(o.id===excludeId) return;
+    if(o.type==='zone-rect'){
+      const rx=o.w<0?o.x+o.w:o.x, ry=o.h<0?o.y+o.h:o.y, rw=Math.abs(o.w), rh=Math.abs(o.h);
+      xs.push(rx, rx+rw/3, rx+rw/2, rx+rw*2/3, rx+rw);
+      ys.push(ry, ry+rh/3, ry+rh/2, ry+rh*2/3, ry+rh);
+    } else if(o.type==='line-free'){
+      o.points.forEach(p=>{ xs.push(p.x); ys.push(p.y); });
+    } else if(o.x1!==undefined){
+      xs.push(o.x1, o.x2); ys.push(o.y1, o.y2);
+    } else if(o.x!==undefined){
+      xs.push(o.x); ys.push(o.y);
+    }
+  });
+  return { xs, ys };
+}
+function applySnap(x, y, excludeId){
+  const { xs, ys } = getSnapCandidates(excludeId);
+  let sx=x, sy=y;
+  const guides = [];
+  let bestX=null, bestXd=SNAP_THRESHOLD+1;
+  xs.forEach(cx=>{ const d=Math.abs(x-cx); if(d<bestXd){ bestXd=d; bestX=cx; } });
+  if(bestX!==null && bestXd<=SNAP_THRESHOLD){ sx=bestX; guides.push({type:'v', pos:bestX}); }
+  let bestY=null, bestYd=SNAP_THRESHOLD+1;
+  ys.forEach(cy=>{ const d=Math.abs(y-cy); if(d<bestYd){ bestYd=d; bestY=cy; } });
+  if(bestY!==null && bestYd<=SNAP_THRESHOLD){ sy=bestY; guides.push({type:'h', pos:bestY}); }
+  return { x:sx, y:sy, guides };
+}
+function drawGuides(){
+  if(!activeGuides.length) return;
+  ctx.save();
+  ctx.strokeStyle='#BCF285'; ctx.lineWidth=1; ctx.setLineDash([5,4]);
+  activeGuides.forEach(g=>{
+    ctx.beginPath();
+    if(g.type==='v'){ ctx.moveTo(g.pos,0); ctx.lineTo(g.pos,CANVAS_H); }
+    else { ctx.moveTo(0,g.pos); ctx.lineTo(CANVAS_W,g.pos); }
+    ctx.stroke();
+  });
+  ctx.setLineDash([]);
+  ctx.restore();
+}
 
 /* ---------- Selección ---------- */
 function getSelectedObjects(){
@@ -325,7 +483,7 @@ function createObjectAt(tool, x, y){
   else if(tool==='player-d'){ o.type='player'; o.team='D'; o.color=lastProp(tool,'color',DEFAULT_COLORS.D); o.number=''; o.scale=lastProp(tool,'scale',0.64); }
   else if(tool==='keeper'){ o.type='player'; o.team='K'; o.color=lastProp(tool,'color',DEFAULT_COLORS.K); o.number=''; o.isKeeper=true; o.scale=lastProp(tool,'scale',0.64); }
   else if(tool==='coach'){ o.type='coach'; o.color='#161616'; o.letter=''; o.scale=lastProp(tool,'scale',0.85); }
-  else if(tool==='alevin'){ o.type='alevin'; o.color=lastProp(tool,'color','#3b82c4'); o.name=''; o.scale=lastProp(tool,'scale',1); }
+  else if(tool==='alevin'){ o.type='alevin'; o.color=lastProp(tool,'color','#3b82c4'); o.name=''; o.scale=lastProp(tool,'scale',1); o.textColor=lastProp(tool,'textColor','#ffffff'); }
   else if(tool==='cone'){ o.type='cone'; o.color=lastProp(tool,'color','#f4a261'); o.rotation=lastProp(tool,'rotation',0); }
   else if(tool==='flat'){ o.type='flat'; o.color=lastProp(tool,'color','#f4a261'); }
   else if(tool==='cone-pole'){ o.type='cone-pole'; o.color=lastProp(tool,'color','#f4a261'); }
@@ -531,7 +689,7 @@ function drawObject(o){
         let fontSize=Math.round(11*(o.scale||1));
         ctx.font=`600 ${fontSize}px Poppins, sans-serif`;
         while(ctx.measureText(o.name).width > w-10 && fontSize>7){ fontSize--; ctx.font=`600 ${fontSize}px Poppins, sans-serif`; }
-        ctx.fillStyle='#ffffff'; ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillStyle=o.textColor||'#ffffff'; ctx.textAlign='center'; ctx.textBaseline='middle';
         ctx.fillText(o.name, o.x, o.y+1);
       }
       break;
@@ -725,6 +883,8 @@ function render(){
     ctx.restore();
   }
 
+  drawGuides();
+
   const sel = getSelectedObjects();
   sel.forEach(o => drawSelection(o));
 
@@ -786,7 +946,12 @@ function renderProps(){
       <label class="field-label">Tamaño</label>
       <input type="range" min="50" max="200" step="5" id="pScale" value="${Math.round((obj.scale||1)*100)}" class="range-input">
       <label class="field-label">Color</label>
-      <input type="color" id="pColor" value="${obj.color}" class="color-input">`;
+      <input type="color" id="pColor" value="${obj.color}" class="color-input">
+      <label class="field-label">Color de la letra</label>
+      <div class="props-row">
+        <button class="chip-btn ${(obj.textColor||'#ffffff')==='#ffffff'?'active':''}" id="pTextColorWhite">Blanco</button>
+        <button class="chip-btn ${obj.textColor==='#000000'?'active':''}" id="pTextColorBlack">Negro</button>
+      </div>`;
   } else if(obj.type==='cone'){
     html += `<label class="field-label">Cono</label>
       <button class="chip-btn" id="pRotate" style="width:100%;margin-top:2px;">⟳ Girar (${obj.rotation||0}°)</button>
@@ -897,6 +1062,8 @@ function renderProps(){
   const lineDashed = document.getElementById('pLineDashed');
   const fillOn = document.getElementById('pFillOn');
   const fillOff = document.getElementById('pFillOff');
+  const textColorWhite = document.getElementById('pTextColorWhite');
+  const textColorBlack = document.getElementById('pTextColorBlack');
   [num,letter,name,text,size,color,length,scale].forEach(el => { if(el) el.addEventListener('focus', ()=>pushHistory(), {once:true}); });
   if(num) num.addEventListener('input', ()=>{ obj.number = num.value.slice(0,2); render(); });
   if(letter) letter.addEventListener('input', ()=>{ obj.letter = letter.value.slice(0,2); render(); });
@@ -929,6 +1096,8 @@ function renderProps(){
   if(lineDashed) lineDashed.addEventListener('click', ()=>{ pushHistory(); obj.lineStyle='dashed'; rememberProp(tk,{lineStyle:'dashed'}); render(); renderProps(); });
   if(fillOn) fillOn.addEventListener('click', ()=>{ pushHistory(); obj.noFill=false; rememberProp(tk,{noFill:false}); render(); renderProps(); });
   if(fillOff) fillOff.addEventListener('click', ()=>{ pushHistory(); obj.noFill=true; rememberProp(tk,{noFill:true}); render(); renderProps(); });
+  if(textColorWhite) textColorWhite.addEventListener('click', ()=>{ pushHistory(); obj.textColor='#ffffff'; rememberProp(tk,{textColor:'#ffffff'}); render(); renderProps(); });
+  if(textColorBlack) textColorBlack.addEventListener('click', ()=>{ pushHistory(); obj.textColor='#000000'; rememberProp(tk,{textColor:'#000000'}); render(); renderProps(); });
 }
 function duplicateObject(obj){
   pushHistory();
@@ -1060,7 +1229,8 @@ canvas.addEventListener('mousedown', e => {
 
   if(['player-a','player-b','player-c','player-d','keeper','coach','alevin','cone','flat','cone-pole','hurdle','hoop','goal-mini','goal-big','ball','pica'].includes(tool)){
     pushHistory();
-    const o = createObjectAt(tool,x,y); o.id = idCounter++;
+    const snapped = applySnap(x, y, null);
+    const o = createObjectAt(tool,snapped.x,snapped.y); o.id = idCounter++;
     state.objects.push(o); selectOnly(o.id);
     render(); renderProps();
     return;
@@ -1083,11 +1253,20 @@ canvas.addEventListener('mousedown', e => {
     return;
   }
 
-  if(tool==='zone-rect'){ draft = { type:'zone-rect', x, y, w:0, h:0, color:lastProp('zone-rect','color','#BCF285'), lineStyle:lastProp('zone-rect','lineStyle','dashed'), noFill:lastProp('zone-rect','noFill',false) }; return; }
-  if(tool==='divider'){ draft = { type:'divider', x1:x, y1:y, x2:x, y2:y, color:lastProp('divider','color','#BCF285'), lineStyle:lastProp('divider','lineStyle','solid') }; return; }
+  if(tool==='zone-rect'){
+    const s = applySnap(x,y,null);
+    draft = { type:'zone-rect', x:s.x, y:s.y, w:0, h:0, color:lastProp('zone-rect','color','#BCF285'), lineStyle:lastProp('zone-rect','lineStyle','dashed'), noFill:lastProp('zone-rect','noFill',false) };
+    return;
+  }
+  if(tool==='divider'){
+    const s = applySnap(x,y,null);
+    draft = { type:'divider', x1:s.x, y1:s.y, x2:s.x, y2:s.y, color:lastProp('divider','color','#BCF285'), lineStyle:lastProp('divider','lineStyle','solid') };
+    return;
+  }
   if(tool.startsWith('arrow-')){
     const style = tool==='arrow-run' ? 'run' : tool==='arrow-pass' ? 'pass' : 'dribble';
-    draft = { type:'arrow', style, x1:x, y1:y, x2:x, y2:y, color:lastProp('arrow-'+style,'color','#f4f1e8'), doubleArrow:style==='pass'?lastProp('arrow-pass','doubleArrow',false):false };
+    const s = applySnap(x,y,null);
+    draft = { type:'arrow', style, x1:s.x, y1:s.y, x2:s.x, y2:s.y, color:lastProp('arrow-'+style,'color','#f4f1e8'), doubleArrow:style==='pass'?lastProp('arrow-pass','doubleArrow',false):false };
     return;
   }
 });
@@ -1096,6 +1275,7 @@ canvas.addEventListener('mousemove', e => {
   const {x,y} = getPos(e);
   if(marquee){ marquee.x2=x; marquee.y2=y; render(); return; }
   if(groupDragging){
+    activeGuides = [];
     const dx = x - groupDragging.startX, dy = y - groupDragging.startY;
     groupDragging.ids.forEach((id,i) => {
       const obj = state.objects.find(o=>o.id===id);
@@ -1105,26 +1285,46 @@ canvas.addEventListener('mousemove', e => {
     return;
   }
   if(pointDragging){
-    pointDragging.obj.points[pointDragging.index] = {x,y};
+    const s = applySnap(x, y, pointDragging.obj.id);
+    pointDragging.obj.points[pointDragging.index] = {x:s.x, y:s.y};
+    activeGuides = s.guides;
     render();
     return;
   }
   if(dragging){
     const dx = x - dragging.startX, dy = y - dragging.startY;
     applyMove(dragging.obj, dragging.orig, dx, dy);
+    if(dragging.obj.x!==undefined){
+      const s = applySnap(dragging.obj.x, dragging.obj.y, dragging.obj.id);
+      dragging.obj.x = s.x; dragging.obj.y = s.y;
+      activeGuides = s.guides;
+    } else {
+      activeGuides = [];
+    }
     render();
     return;
   }
   if(draft){
-    if(draft.type==='zone-rect'){ draft.w = x-draft.x; draft.h = y-draft.y; }
-    else if(draft.type==='arrow'){ draft.x2 = x; draft.y2 = y; }
+    if(draft.type==='zone-rect'){
+      const s = applySnap(x, y, null);
+      draft.w = s.x-draft.x; draft.h = s.y-draft.y;
+      activeGuides = s.guides;
+    }
+    else if(draft.type==='arrow'){
+      const s = applySnap(x, y, null);
+      draft.x2 = s.x; draft.y2 = s.y;
+      activeGuides = s.guides;
+    }
     else if(draft.type==='divider'){
       if(e.shiftKey){
         const dx = x - draft.x1, dy = y - draft.y1;
         if(Math.abs(dx) >= Math.abs(dy)){ draft.x2 = x; draft.y2 = draft.y1; }
         else { draft.x2 = draft.x1; draft.y2 = y; }
+        activeGuides = [];
       } else {
-        draft.x2 = x; draft.y2 = y;
+        const s = applySnap(x, y, null);
+        draft.x2 = s.x; draft.y2 = s.y;
+        activeGuides = s.guides;
       }
     }
     else if(draft.type==='line-free'){ draft._preview = {x,y}; }
@@ -1142,8 +1342,8 @@ window.addEventListener('mouseup', () => {
     return;
   }
   if(groupDragging){ groupDragging = null; return; }
-  if(pointDragging){ pointDragging = null; return; }
-  if(dragging){ dragging = null; }
+  if(pointDragging){ pointDragging = null; activeGuides = []; render(); return; }
+  if(dragging){ dragging = null; activeGuides = []; render(); return; }
   if(draft && draft.type!=='line-free'){
     let ok = false;
     if(draft.type==='zone-rect') ok = Math.abs(draft.w) > 8 && Math.abs(draft.h) > 8;
@@ -1155,6 +1355,7 @@ window.addEventListener('mouseup', () => {
       selectOnly(draft.id);
     }
     draft = null;
+    activeGuides = [];
     render(); renderProps();
   }
 });
@@ -1243,11 +1444,9 @@ document.getElementById('btnClear').addEventListener('click', () => {
     pushHistory(); state.objects=[]; state.selectedIds=[]; render(); renderProps();
   }
 });
-document.getElementById('btnExport').addEventListener('click', () => {
+function getCroppedBoardCanvas(){
   const prevSel = state.selectedIds;
   state.selectedIds = []; render();
-
-  // Recortar exactamente al borde de la imagen del campo (sin el fondo verde oscuro del lienzo)
   const { w, h } = computePitchRect();
   const sx = Math.round((CANVAS_W/2 - w/2) * dpr);
   const sy = Math.round((CANVAS_H/2 - h/2) * dpr);
@@ -1255,21 +1454,131 @@ document.getElementById('btnExport').addEventListener('click', () => {
   const off = document.createElement('canvas');
   off.width = sw; off.height = sh;
   off.getContext('2d').drawImage(canvas, sx, sy, sw, sh, 0, 0, sw, sh);
-
+  state.selectedIds = prevSel; render();
+  return off;
+}
+document.getElementById('btnExport').addEventListener('click', () => {
+  const off = getCroppedBoardCanvas();
   const name = (state.title || 'ejercicio-entrenamiento').trim().replace(/[^\wáéíóúñÁÉÍÓÚÑ\- ]/g,'').replace(/\s+/g,'-') || 'ejercicio-entrenamiento';
   const filename = name + '.png';
-
   const link = document.createElement('a');
   link.download = filename;
   link.href = off.toDataURL('image/png');
   link.click();
-  state.selectedIds = prevSel; render();
 });
+
+/* ---------- Vista: Armar sesión ---------- */
+let session = { blocks: [] };
+let sessionBlockId = 1;
+
+function addSessionBlock(image){
+  session.blocks.push({ id: sessionBlockId++, title:'', duration:'', description:'', image: image || null });
+  renderSession();
+}
+function removeSessionBlock(id){
+  if(!confirm('¿Quitar este ejercicio de la sesión?')) return;
+  session.blocks = session.blocks.filter(b=>b.id!==id);
+  renderSession();
+}
+function renderSession(){
+  const wrap = document.getElementById('sheetBlocks');
+  wrap.innerHTML = session.blocks.map((b,i) => `
+    <div class="sheet-block" data-id="${b.id}">
+      <div class="sheet-block-top">
+        <span class="sheet-block-num">${i+1}</span>
+        <input class="sheet-input sheet-block-title" placeholder="Título del ejercicio" value="${escapeHtml(b.title)}" data-field="title" data-id="${b.id}">
+        <input class="sheet-input sheet-block-duration" placeholder="min" value="${escapeHtml(b.duration)}" data-field="duration" data-id="${b.id}">
+        <button class="sheet-block-del" data-id="${b.id}" title="Quitar">✕</button>
+      </div>
+      <div class="sheet-block-body">
+        <textarea class="sheet-input sheet-block-desc" placeholder="Descripción / objetivo del ejercicio..." data-field="description" data-id="${b.id}">${escapeHtml(b.description)}</textarea>
+        <div class="sheet-block-imgwrap">
+          ${b.image
+            ? `<img class="sheet-block-img" src="${b.image}" alt="">
+               <div class="sheet-block-imgactions">
+                 <button data-action="use-pizarra" data-id="${b.id}">🎯 Usar Pizarra</button>
+                 <button data-action="upload" data-id="${b.id}">📁 Subir</button>
+                 <button data-action="remove-img" data-id="${b.id}">🗑 Quitar</button>
+               </div>`
+            : `<div class="sheet-block-dropzone" data-action="upload" data-id="${b.id}">
+                 <span>📁 Sube una imagen</span>
+                 <span>o usa «➕ Añadir a sesión» desde la Pizarra</span>
+               </div>
+               <div class="sheet-block-imgactions">
+                 <button data-action="use-pizarra" data-id="${b.id}">🎯 Usar gráfico actual de la Pizarra</button>
+               </div>`
+          }
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  wrap.querySelectorAll('[data-field]').forEach(el=>{
+    el.addEventListener('input', ()=>{
+      const b = session.blocks.find(x=>x.id==el.dataset.id);
+      if(b) b[el.dataset.field] = el.value;
+    });
+  });
+  wrap.querySelectorAll('.sheet-block-del').forEach(el=>{
+    el.addEventListener('click', ()=> removeSessionBlock(Number(el.dataset.id)));
+  });
+  wrap.querySelectorAll('[data-action="use-pizarra"]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const b = session.blocks.find(x=>x.id==el.dataset.id);
+      if(b){ b.image = getCroppedBoardCanvas().toDataURL('image/png'); renderSession(); }
+    });
+  });
+  wrap.querySelectorAll('[data-action="remove-img"]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const b = session.blocks.find(x=>x.id==el.dataset.id);
+      if(b){ b.image = null; renderSession(); }
+    });
+  });
+  wrap.querySelectorAll('[data-action="upload"]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const id = el.dataset.id;
+      const input = document.createElement('input');
+      input.type = 'file'; input.accept = 'image/png,image/jpeg';
+      input.onchange = () => {
+        const file = input.files[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = ev => {
+          const b = session.blocks.find(x=>x.id==id);
+          if(b){ b.image = ev.target.result; renderSession(); }
+        };
+        reader.readAsDataURL(file);
+      };
+      input.click();
+    });
+  });
+}
+
+document.getElementById('btnAddBlock').addEventListener('click', ()=> addSessionBlock());
+document.getElementById('btnPrintSession').addEventListener('click', ()=> window.print());
+document.getElementById('btnAddToSession').addEventListener('click', ()=>{
+  const dataUrl = getCroppedBoardCanvas().toDataURL('image/png');
+  addSessionBlock(dataUrl);
+  switchView('sesion');
+});
+document.getElementById('sheetLogoImg').src = LOGO_IMG;
+
+/* ---------- Navegación entre vistas ---------- */
+function switchView(view){
+  document.getElementById('viewPizarra').style.display = view==='pizarra' ? 'flex' : 'none';
+  document.getElementById('viewSesion').style.display = view==='sesion' ? 'flex' : 'none';
+  document.getElementById('navBtnPizarra').classList.toggle('active', view==='pizarra');
+  document.getElementById('navBtnSesion').classList.toggle('active', view==='sesion');
+  if(view==='pizarra'){ resizeCanvasToFit(); render(); }
+}
+document.getElementById('navBtnPizarra').addEventListener('click', ()=> switchView('pizarra'));
+document.getElementById('navBtnSesion').addEventListener('click', ()=> switchView('sesion'));
 
 /* ---------- Inicio ---------- */
 resizeCanvasToFit();
 render();
 renderProps();
+renderSession();
 </script>
 </body>
 </html>

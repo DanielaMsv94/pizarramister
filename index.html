@@ -225,11 +225,7 @@
       <button class="tool-btn wide" data-tool="alevin"><span class="tool-icon" style="font-size:14px;">▭</span>Jugador por nombre</button>
       <button class="tool-btn" data-tool="cone"><span class="tool-icon" style="color:#f4a261;">▲</span>Cono</button>
       <button class="tool-btn" data-tool="flat"><span class="tool-icon" style="color:#f4a261;">◎</span>Plana</button>
-      <button class="tool-btn" data-tool="cone-pole">
-        <span class="tool-icon" style="display:flex;flex-direction:column;align-items:center;line-height:.6;">
-          <span style="width:2px;height:7px;background:#f2c14e;display:block;"></span>
-          <span style="width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:12px solid #f4a261;margin-top:1px;display:block;"></span>
-        </span>Cono con pica</button>
+      <button class="tool-btn" data-tool="cone-pole"><span class="tool-icon">🧍</span>Muñeco</button>
       <button class="tool-btn" data-tool="pica"><span class="tool-icon bar"></span>Pica</button>
       <button class="tool-btn" data-tool="hurdle"><span class="tool-icon">🚧</span>Valla</button>
       <button class="tool-btn" data-tool="hoop"><span class="tool-icon" style="color:#f2c14e;">◯</span>Aro</button>
@@ -352,7 +348,7 @@ let marquee = null;        // {x1,y1,x2,y2} selección rectangular con clic dere
 let activeGuides = [];     // guías de alineación visibles durante el arrastre
 
 /* ---------- Guías inteligentes de alineación (tipo PowerPoint) ---------- */
-const SNAP_THRESHOLD = 6;
+const SNAP_THRESHOLD = 9;
 function getSnapCandidates(excludeId){
   const xs = [], ys = [];
   const { w:pw, h:ph } = computePitchRect();
@@ -386,6 +382,11 @@ function applySnap(x, y, excludeId){
   ys.forEach(cy=>{ const d=Math.abs(y-cy); if(d<bestYd){ bestYd=d; bestY=cy; } });
   if(bestY!==null && bestYd<=SNAP_THRESHOLD){ sy=bestY; guides.push({type:'h', pos:bestY}); }
   return { x:sx, y:sy, guides };
+}
+function getObjectAnchor(o){
+  // Punto "visual" del objeto usado para las guías: su centro real, no la esquina donde se guarda x/y.
+  if(o.type==='zone-rect') return { x:o.x+o.w/2, y:o.y+o.h/2 };
+  return { x:o.x, y:o.y };
 }
 function drawGuides(){
   if(!activeGuides.length) return;
@@ -477,16 +478,16 @@ window.addEventListener('resize', resizeCanvasToFit);
 /* ---------- Creación de objetos ---------- */
 function createObjectAt(tool, x, y){
   const o = { x, y };
-  if(tool==='player-a'){ o.type='player'; o.team='A'; o.color=lastProp(tool,'color',DEFAULT_COLORS.A); o.number=''; o.scale=lastProp(tool,'scale',0.64); }
-  else if(tool==='player-b'){ o.type='player'; o.team='B'; o.color=lastProp(tool,'color',DEFAULT_COLORS.B); o.number=''; o.scale=lastProp(tool,'scale',0.64); }
-  else if(tool==='player-c'){ o.type='player'; o.team='C'; o.color=lastProp(tool,'color',DEFAULT_COLORS.C); o.number=''; o.scale=lastProp(tool,'scale',0.64); }
-  else if(tool==='player-d'){ o.type='player'; o.team='D'; o.color=lastProp(tool,'color',DEFAULT_COLORS.D); o.number=''; o.scale=lastProp(tool,'scale',0.64); }
-  else if(tool==='keeper'){ o.type='player'; o.team='K'; o.color=lastProp(tool,'color',DEFAULT_COLORS.K); o.number=''; o.isKeeper=true; o.scale=lastProp(tool,'scale',0.64); }
+  if(tool==='player-a'){ o.type='player'; o.team='A'; o.color=lastProp(tool,'color',DEFAULT_COLORS.A); o.number=''; o.scale=lastProp(tool,'scale',0.64); o.textColor=lastProp(tool,'textColor','#ffffff'); }
+  else if(tool==='player-b'){ o.type='player'; o.team='B'; o.color=lastProp(tool,'color',DEFAULT_COLORS.B); o.number=''; o.scale=lastProp(tool,'scale',0.64); o.textColor=lastProp(tool,'textColor','#ffffff'); }
+  else if(tool==='player-c'){ o.type='player'; o.team='C'; o.color=lastProp(tool,'color',DEFAULT_COLORS.C); o.number=''; o.scale=lastProp(tool,'scale',0.64); o.textColor=lastProp(tool,'textColor','#ffffff'); }
+  else if(tool==='player-d'){ o.type='player'; o.team='D'; o.color=lastProp(tool,'color',DEFAULT_COLORS.D); o.number=''; o.scale=lastProp(tool,'scale',0.64); o.textColor=lastProp(tool,'textColor','#ffffff'); }
+  else if(tool==='keeper'){ o.type='player'; o.team='K'; o.color=lastProp(tool,'color',DEFAULT_COLORS.K); o.number=''; o.isKeeper=true; o.scale=lastProp(tool,'scale',0.64); o.textColor=lastProp(tool,'textColor','#ffffff'); }
   else if(tool==='coach'){ o.type='coach'; o.color='#161616'; o.letter=''; o.scale=lastProp(tool,'scale',0.85); }
   else if(tool==='alevin'){ o.type='alevin'; o.color=lastProp(tool,'color','#3b82c4'); o.name=''; o.scale=lastProp(tool,'scale',1); o.textColor=lastProp(tool,'textColor','#ffffff'); }
-  else if(tool==='cone'){ o.type='cone'; o.color=lastProp(tool,'color','#f4a261'); o.rotation=lastProp(tool,'rotation',0); }
+  else if(tool==='cone'){ o.type='cone'; o.color=lastProp(tool,'color','#f4a261'); o.rotation=lastProp(tool,'rotation',0); o.poleTop=lastProp(tool,'poleTop',false); }
   else if(tool==='flat'){ o.type='flat'; o.color=lastProp(tool,'color','#f4a261'); }
-  else if(tool==='cone-pole'){ o.type='cone-pole'; o.color=lastProp(tool,'color','#f4a261'); }
+  else if(tool==='cone-pole'){ o.type='cone-pole'; o.color=lastProp(tool,'color','#f2c14e'); }
   else if(tool==='hurdle'){ o.type='hurdle'; o.rotation=lastProp(tool,'rotation',0); }
   else if(tool==='hoop'){ o.type='hoop'; o.color=lastProp(tool,'color','#f2c14e'); }
   else if(tool==='goal-mini'){ o.type='goal'; o.size='mini'; o.rotation=lastProp(tool,'rotation',0); }
@@ -509,9 +510,9 @@ function pointInObject(o,x,y){
     case 'player': return Math.hypot(x-o.x,y-o.y) <= PLAYER_R*(o.scale||1)+3;
     case 'coach': return Math.hypot(x-o.x,y-o.y) <= COACH_R*(o.scale||1)+3;
     case 'alevin': { const w=ALEVIN_SIZE.w*(o.scale||1), h=ALEVIN_SIZE.h*(o.scale||1); return x>=o.x-w/2-3 && x<=o.x+w/2+3 && y>=o.y-h/2-3 && y<=o.y+h/2+3; }
-    case 'cone': return Math.hypot(x-o.x,y-o.y) <= CONE_R+5;
+    case 'cone': return Math.hypot(x-o.x,y-o.y) <= CONE_R+5+(o.poleTop?12:0);
     case 'flat': return Math.hypot(x-o.x,y-o.y) <= 11;
-    case 'cone-pole': return Math.hypot(x-o.x,y-o.y) <= CONE_R+16;
+    case 'cone-pole': return Math.hypot(x-o.x,y-(o.y+1)) <= 18;
     case 'hoop': return Math.hypot(x-o.x,y-o.y) <= 17;
     case 'hurdle': {
       const rad = -((o.rotation||0) * Math.PI/180);
@@ -658,7 +659,7 @@ function drawObject(o){
       ctx.lineWidth=2.5; ctx.strokeStyle='#0c2c21'; ctx.stroke();
       if(o.isKeeper){ ctx.beginPath(); ctx.arc(o.x,o.y,pr+4,0,Math.PI*2); ctx.strokeStyle='#f4f1e8'; ctx.lineWidth=1.5; ctx.stroke(); }
       if(o.number){
-        ctx.fillStyle='#ffffff'; ctx.font=`700 ${Math.round(15*(o.scale||1))}px Poppins, sans-serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillStyle=o.textColor||'#ffffff'; ctx.font=`700 ${Math.round(15*(o.scale||1))}px Poppins, sans-serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
         ctx.fillText(o.number, o.x, o.y+1);
       }
       break;
@@ -699,34 +700,45 @@ function drawObject(o){
       ctx.rotate((o.rotation||0) * Math.PI/180);
       ctx.beginPath();
       ctx.moveTo(0,-CONE_R); ctx.lineTo(CONE_R*0.9,CONE_R*0.8); ctx.lineTo(-CONE_R*0.9,CONE_R*0.8);
-      ctx.closePath(); ctx.fillStyle=o.color; ctx.fill(); ctx.strokeStyle='rgba(0,0,0,0.4)'; ctx.lineWidth=1.5; ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(-CONE_R*0.5,CONE_R*0.15); ctx.lineTo(CONE_R*0.5,CONE_R*0.15);
-      ctx.strokeStyle='rgba(255,255,255,0.55)'; ctx.lineWidth=1.5; ctx.stroke();
+      ctx.closePath(); ctx.fillStyle=o.color; ctx.fill();
+      if(o.poleTop){
+        ctx.strokeStyle=o.color; ctx.lineWidth=2.5; ctx.lineCap='round';
+        ctx.beginPath(); ctx.moveTo(0,-CONE_R); ctx.lineTo(0,-CONE_R-14); ctx.stroke();
+      }
       break;
     }
     case 'flat': {
       ctx.beginPath();
       ctx.arc(o.x,o.y,8,0,Math.PI*2,false);
-      ctx.arc(o.x,o.y,3.2,0,Math.PI*2,true);
+      ctx.arc(o.x,o.y,1.8,0,Math.PI*2,true);
       ctx.closePath();
       ctx.fillStyle=o.color; ctx.fill('evenodd');
-      ctx.strokeStyle='rgba(0,0,0,0.35)'; ctx.lineWidth=1; ctx.stroke();
       break;
     }
     case 'cone-pole': {
-      const col = o.color || '#f4a261';
+      const col = o.color || '#f2c14e';
+      // sombra / base
+      ctx.beginPath(); ctx.ellipse(o.x, o.y+13, 8, 2.6, 0, 0, Math.PI*2);
+      ctx.fillStyle='rgba(0,0,0,0.3)'; ctx.fill();
+      // cuerpo (cápsula)
       ctx.beginPath();
-      ctx.moveTo(o.x, o.y-CONE_R); ctx.lineTo(o.x+CONE_R*0.9,o.y+CONE_R*0.8); ctx.lineTo(o.x-CONE_R*0.9,o.y+CONE_R*0.8);
-      ctx.closePath(); ctx.fillStyle=col; ctx.fill(); ctx.strokeStyle='rgba(0,0,0,0.4)'; ctx.lineWidth=1.5; ctx.stroke();
-      ctx.strokeStyle=col; ctx.lineWidth=2.5; ctx.lineCap='round';
-      ctx.beginPath(); ctx.moveTo(o.x, o.y-CONE_R); ctx.lineTo(o.x, o.y-CONE_R-14); ctx.stroke();
+      ctx.moveTo(o.x-5.5, o.y+12);
+      ctx.lineTo(o.x-5.5, o.y-3);
+      ctx.arc(o.x, o.y-3, 5.5, Math.PI, 0);
+      ctx.lineTo(o.x+5.5, o.y+12);
+      ctx.closePath();
+      ctx.fillStyle=col; ctx.fill();
+      ctx.strokeStyle='rgba(0,0,0,0.4)'; ctx.lineWidth=1.2; ctx.stroke();
+      // cabeza
+      ctx.beginPath(); ctx.arc(o.x, o.y-9, 4, 0, Math.PI*2);
+      ctx.fillStyle=col; ctx.fill(); ctx.strokeStyle='rgba(0,0,0,0.4)'; ctx.lineWidth=1; ctx.stroke();
       break;
     }
     case 'hurdle': {
       ctx.translate(o.x,o.y);
       ctx.rotate((o.rotation||0) * Math.PI/180);
       const hw=HURDLE_SIZE.w, hh=HURDLE_SIZE.h;
-      ctx.strokeStyle='#f4f1e8'; ctx.lineWidth=2.2; ctx.lineCap='round'; ctx.lineJoin='round';
+      ctx.strokeStyle='#f2c14e'; ctx.lineWidth=2.2; ctx.lineCap='round'; ctx.lineJoin='round';
       ctx.beginPath();
       ctx.moveTo(-hw/2,hh/2); ctx.lineTo(-hw/2,-hh/2); ctx.lineTo(hw/2,-hh/2); ctx.lineTo(hw/2,hh/2);
       ctx.stroke();
@@ -824,9 +836,9 @@ function drawSelection(o){
     case 'player': ctx.beginPath(); ctx.arc(o.x,o.y,PLAYER_R*(o.scale||1)+7,0,Math.PI*2); ctx.stroke(); break;
     case 'coach': ctx.beginPath(); ctx.arc(o.x,o.y,COACH_R*(o.scale||1)+7,0,Math.PI*2); ctx.stroke(); break;
     case 'alevin': { const w=ALEVIN_SIZE.w*(o.scale||1), h=ALEVIN_SIZE.h*(o.scale||1); ctx.strokeRect(o.x-w/2-5,o.y-h/2-5,w+10,h+10); break; }
-    case 'cone': ctx.beginPath(); ctx.arc(o.x,o.y,CONE_R+9,0,Math.PI*2); ctx.stroke(); break;
+    case 'cone': ctx.beginPath(); ctx.arc(o.x,o.y,CONE_R+9+(o.poleTop?12:0),0,Math.PI*2); ctx.stroke(); break;
     case 'flat': ctx.beginPath(); ctx.arc(o.x,o.y,15,0,Math.PI*2); ctx.stroke(); break;
-    case 'cone-pole': ctx.beginPath(); ctx.arc(o.x,o.y-8,CONE_R+18,0,Math.PI*2); ctx.stroke(); break;
+    case 'cone-pole': ctx.beginPath(); ctx.arc(o.x,o.y+1,20,0,Math.PI*2); ctx.stroke(); break;
     case 'hoop': ctx.beginPath(); ctx.arc(o.x,o.y,20,0,Math.PI*2); ctx.stroke(); break;
     case 'hurdle': {
       ctx.translate(o.x,o.y); ctx.rotate((o.rotation||0) * Math.PI/180);
@@ -924,7 +936,8 @@ function renderProps(){
   const obj = selected[0];
   let html = `<div class="section-title">Propiedades</div>
     <div class="props-row"><button class="chip-btn" id="pDup">⧉ Duplicar</button><button class="chip-btn danger" id="pDel">🗑 Eliminar</button></div>
-    <div class="props-row"><button class="chip-btn" id="pFront">Al frente</button><button class="chip-btn" id="pBack">Al fondo</button></div>`;
+    <div class="props-row"><button class="chip-btn" id="pFront">Al frente</button><button class="chip-btn" id="pBack">Al fondo</button></div>
+    <div class="props-row"><button class="chip-btn" id="pForward">▲ Un paso adelante</button><button class="chip-btn" id="pBackward">▼ Un paso atrás</button></div>`;
 
   if(obj.type==='player'){
     html += `<label class="field-label">${TEAM_LABELS[obj.team]||obj.team}</label>
@@ -933,7 +946,12 @@ function renderProps(){
       <label class="field-label">Tamaño</label>
       <input type="range" min="50" max="200" step="5" id="pScale" value="${Math.round((obj.scale||1)*100)}" class="range-input">
       <label class="field-label">Color</label>
-      <input type="color" id="pColor" value="${obj.color}" class="color-input">`;
+      <input type="color" id="pColor" value="${obj.color}" class="color-input">
+      <label class="field-label">Color de la letra</label>
+      <div class="props-row">
+        <button class="chip-btn ${(obj.textColor||'#ffffff')==='#ffffff'?'active':''}" id="pTextColorWhite">Blanco</button>
+        <button class="chip-btn ${obj.textColor==='#000000'?'active':''}" id="pTextColorBlack">Negro</button>
+      </div>`;
   } else if(obj.type==='coach'){
     html += `<label class="field-label">Entrenador</label>
       <label class="field-label">Letra (opcional)</label>
@@ -956,13 +974,14 @@ function renderProps(){
     html += `<label class="field-label">Cono</label>
       <button class="chip-btn" id="pRotate" style="width:100%;margin-top:2px;">⟳ Girar (${obj.rotation||0}°)</button>
       <label class="field-label">Color</label>
-      <input type="color" id="pColor" value="${obj.color}" class="color-input">`;
+      <input type="color" id="pColor" value="${obj.color}" class="color-input">
+      <button class="chip-btn ${obj.poleTop?'active':''}" id="pPoleTop" style="width:100%;margin-top:10px;">▲ Cono con pica</button>`;
   } else if(obj.type==='flat'){
     html += `<label class="field-label">Plana</label>
       <label class="field-label">Color</label>
       <input type="color" id="pColor" value="${obj.color}" class="color-input">`;
   } else if(obj.type==='cone-pole'){
-    html += `<label class="field-label">Cono con pica</label>
+    html += `<label class="field-label">Muñeco</label>
       <label class="field-label">Color</label>
       <input type="color" id="pColor" value="${obj.color}" class="color-input">`;
   } else if(obj.type==='hoop'){
@@ -1044,6 +1063,22 @@ function renderProps(){
   document.getElementById('pDel').onclick = () => deleteObject(obj);
   document.getElementById('pFront').onclick = () => { pushHistory(); state.objects = state.objects.filter(o=>o!==obj); state.objects.push(obj); render(); };
   document.getElementById('pBack').onclick = () => { pushHistory(); state.objects = state.objects.filter(o=>o!==obj); state.objects.unshift(obj); render(); };
+  document.getElementById('pForward').onclick = () => {
+    const idx = state.objects.indexOf(obj);
+    if(idx < state.objects.length-1){
+      pushHistory();
+      state.objects.splice(idx,1); state.objects.splice(idx+1,0,obj);
+      render();
+    }
+  };
+  document.getElementById('pBackward').onclick = () => {
+    const idx = state.objects.indexOf(obj);
+    if(idx > 0){
+      pushHistory();
+      state.objects.splice(idx,1); state.objects.splice(idx-1,0,obj);
+      render();
+    }
+  };
 
   const num = document.getElementById('pNum');
   const letter = document.getElementById('pLetter');
@@ -1062,6 +1097,7 @@ function renderProps(){
   const lineDashed = document.getElementById('pLineDashed');
   const fillOn = document.getElementById('pFillOn');
   const fillOff = document.getElementById('pFillOff');
+  const poleTopBtn = document.getElementById('pPoleTop');
   const textColorWhite = document.getElementById('pTextColorWhite');
   const textColorBlack = document.getElementById('pTextColorBlack');
   [num,letter,name,text,size,color,length,scale].forEach(el => { if(el) el.addEventListener('focus', ()=>pushHistory(), {once:true}); });
@@ -1096,6 +1132,7 @@ function renderProps(){
   if(lineDashed) lineDashed.addEventListener('click', ()=>{ pushHistory(); obj.lineStyle='dashed'; rememberProp(tk,{lineStyle:'dashed'}); render(); renderProps(); });
   if(fillOn) fillOn.addEventListener('click', ()=>{ pushHistory(); obj.noFill=false; rememberProp(tk,{noFill:false}); render(); renderProps(); });
   if(fillOff) fillOff.addEventListener('click', ()=>{ pushHistory(); obj.noFill=true; rememberProp(tk,{noFill:true}); render(); renderProps(); });
+  if(poleTopBtn) poleTopBtn.addEventListener('click', ()=>{ pushHistory(); obj.poleTop=!obj.poleTop; rememberProp(tk,{poleTop:obj.poleTop}); render(); renderProps(); });
   if(textColorWhite) textColorWhite.addEventListener('click', ()=>{ pushHistory(); obj.textColor='#ffffff'; rememberProp(tk,{textColor:'#ffffff'}); render(); renderProps(); });
   if(textColorBlack) textColorBlack.addEventListener('click', ()=>{ pushHistory(); obj.textColor='#000000'; rememberProp(tk,{textColor:'#000000'}); render(); renderProps(); });
 }
@@ -1295,8 +1332,10 @@ canvas.addEventListener('mousemove', e => {
     const dx = x - dragging.startX, dy = y - dragging.startY;
     applyMove(dragging.obj, dragging.orig, dx, dy);
     if(dragging.obj.x!==undefined){
-      const s = applySnap(dragging.obj.x, dragging.obj.y, dragging.obj.id);
-      dragging.obj.x = s.x; dragging.obj.y = s.y;
+      const anchor = getObjectAnchor(dragging.obj);
+      const s = applySnap(anchor.x, anchor.y, dragging.obj.id);
+      dragging.obj.x += (s.x - anchor.x);
+      dragging.obj.y += (s.y - anchor.y);
       activeGuides = s.guides;
     } else {
       activeGuides = [];
